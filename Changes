@@ -1,0 +1,5 @@
+Revision history for Plack::Middleware::MemoryUsage
+
+0.01  2013-01-15
+  * Initial version
+
