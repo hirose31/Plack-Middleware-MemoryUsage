@@ -54,21 +54,21 @@ Plack::Middleware::MemoryUsage - for measuring process memory
 
   use Plack::Builder;
   builder {
-      enable "MemoryUsage", callback => sub {
-          my ($env, $res, $before, $after, $diff) = @_;
-          # return if int(rand(3)); # show memory usage summary with 1/3 probability
-          my $worst_count = 5;
-          for my $pkg (sort { $diff->{$b} <=> $diff->{$a} } keys %$diff) {
-              warn sprintf("%-32s %8d = %8d - %8d [KB]\n",
-                           $pkg,
-                           $diff->{$pkg}/1024,
-                           $after->{$pkg}/1024,
-                           $before->{$pkg}/1024,
-                          );
-              last if --$worst_count <= 0;
-          }
-      };
-      $app;
+      enable "MemoryUsage",
+          callback => sub {
+              my ($env, $res, $before, $after, $diff) = @_;
+              my $worst_count = 5;
+              for my $pkg (sort { $diff->{$b} <=> $diff->{$a} } keys %$diff) {
+                  warn sprintf("%-32s %8d = %8d - %8d [KB]\n",
+                               $pkg,
+                               $diff->{$pkg}/1024,
+                               $after->{$pkg}/1024,
+                               $before->{$pkg}/1024,
+                              );
+                  last if --$worst_count <= 0;
+              }
+          };
+        $app;
   };
   
   # 1st                                diff      after     before
@@ -89,6 +89,20 @@ Plack::Middleware::MemoryUsage - for measuring process memory
 
 Plack::Middleware::MemoryUsage is middleware for measuring process memory.
 
+Enabling Plack::Middleware::MemoryUsage causes huge performance penalty.
+So I HIGHLY RECOMMEND to enable this middleware only on development env or not processing every request on production using Plack::Middleware::Conditional.
+
+  builder {
+      ## with 1/3 probability
+      enable_if { int(rand(3)) == 0 } "MemoryUsage",
+      ## only exists X-Memory-Usage request header
+      # enable_if { exists $_[0]->{HTTP_X_MEMORY_USAGE} } "MemoryUsage",
+          callback => sub {
+          ...
+          };
+        $app;
+  };
+
 =head1 CONFIGURATION
 
 =over 4
@@ -103,9 +117,13 @@ callback subref will be called after process app.
   };
 
 First argument is Plack env.
+
 Second argument is Plack response.
+
 Third argument is a hash ref of memory usage by package at before process app.
+
 Fourth argument is a hash ref of memory usage by package at after process app.
+
 Fifth argument is a hash ref of difference memory usage by package between before and after.
 
 =back

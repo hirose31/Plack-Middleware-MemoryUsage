@@ -22,20 +22,26 @@ my $app = sub {
 
 
 builder {
-    enable "MemoryUsage", callback => sub {
-        my ($env, $res, $before, $after, $diff) = @_;
-        # return if int(rand(3)); # show memory usage summary with 1/3 probability
-        my $worst_count = 5;
-        for my $pkg (sort { $diff->{$b} <=> $diff->{$a} } keys %$diff) {
-            warn sprintf("%-32s %8d = %8d - %8d [KB]\n",
-                         $pkg,
-                         $diff->{$pkg}/1024,
-                         $after->{$pkg}/1024,
-                         $before->{$pkg}/1024,
-                        );
-            last if --$worst_count <= 0;
-        }
-    };
+    enable    "Runtime";
+    ## every request
+    enable    "MemoryUsage",
+    ## with 1/3 probability
+    # enable_if { int(rand(3)) == 0 } "MemoryUsage",
+    ## only exists X-Memory-Usage request header
+    # enable_if { exists $_[0]->{HTTP_X_MEMORY_USAGE} } "MemoryUsage",
+        callback => sub {
+            my ($env, $res, $before, $after, $diff) = @_;
+            my $worst_count = 5;
+            for my $pkg (sort { $diff->{$b} <=> $diff->{$a} } keys %$diff) {
+                warn sprintf("%-32s %8d = %8d - %8d [KB]\n",
+                             $pkg,
+                             $diff->{$pkg}/1024,
+                             $after->{$pkg}/1024,
+                             $before->{$pkg}/1024,
+                            );
+                last if --$worst_count <= 0;
+            }
+        };
     $app;
 };
 
