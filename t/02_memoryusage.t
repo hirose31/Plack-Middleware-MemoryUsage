@@ -1,3 +1,4 @@
+# -*- mode: cperl -*-
 use strict;
 use Test::More;
 use Plack::Test;

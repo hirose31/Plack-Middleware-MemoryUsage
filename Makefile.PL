@@ -5,11 +5,11 @@ all_from 'lib/Plack/Middleware/MemoryUsage.pm';
 license  'perl';
 
 requires 'Plack';
-requires 'B::TerseSize';
+requires 'B::Size2::Terse' => '2.01';
 requires 'Devel::Symdump';
 requires 'parent';
 
-test_requires 'Test::More' => 0.88;
+test_requires 'Test::More' => '0.88';
 
 tests_recursive;
 author_tests 'xt';

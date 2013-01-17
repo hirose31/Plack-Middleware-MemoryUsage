@@ -8,7 +8,7 @@ use Plack::Util::Accessor qw( callback );
 
 our $VERSION = '0.01';
 
-use B::TerseSize;
+use B::Size2::Terse;
 use Devel::Symdump;
 
 sub call {
@@ -34,7 +34,7 @@ sub memory_usage {
     my $stab = Devel::Symdump->rnew("main");
     my $size;
     for my $package ("main", $stab->packages) {
-        my($subs, $opcount, $opsize) = B::TerseSize::package_size($package);
+        my($subs, $opcount, $opsize) = B::Size2::Terse::package_size($package);
         $size->{$package} = $opsize;
     }
     return $size;
@@ -73,7 +73,7 @@ Plack::Middleware::MemoryUsage - for measuring process memory
   
   # 1st                                diff      after     before
   MemoryEater                         36864 =    36873 -        9 [KB]
-  B::TerseSize                          191 =      645 -      453 [KB]
+  B::Size2::Terse                       191 =      645 -      453 [KB]
   B::AV                                  21 =       37 -       16 [KB]
   B::HV                                   4 =       18 -       14 [KB]
   B::NV                                   0 =        8 -        8 [KB]
