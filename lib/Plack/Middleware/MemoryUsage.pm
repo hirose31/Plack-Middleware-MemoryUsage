@@ -6,7 +6,7 @@ use warnings;
 use parent qw( Plack::Middleware );
 use Plack::Util::Accessor qw( callback );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use B::Size2::Terse;
 use Devel::Symdump;
