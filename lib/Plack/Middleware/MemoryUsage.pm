@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use parent qw( Plack::Middleware );
-use Plack::Util::Accessor qw( callback );
+use Plack::Util::Accessor qw( callback packages);
 
 our $VERSION = '0.02';
 
@@ -14,9 +14,9 @@ use Devel::Symdump;
 sub call {
     my($self, $env) = @_;
 
-    my $before = memory_usage();
+    my $before = $self->memory_usage();
     my $res    = $self->app->($env);
-    my $after  = memory_usage();
+    my $after  = $self->memory_usage();
     my $diff   = {};
 
     for my $pkg (keys %$after) {
@@ -31,9 +31,11 @@ sub call {
 }
 
 sub memory_usage {
-    my $stab = Devel::Symdump->rnew("main");
+    my $self = shift;
+    my @packages = $self->packages ? @{$self->packages} : Devel::Symdump->rnew("main")->packages;
     my $size;
-    for my $package ("main", $stab->packages) {
+
+    for my $package ("main", @packages) {
         my($subs, $opcount, $opsize) = B::Size2::Terse::package_size($package);
         $size->{$package} = $opsize;
     }
@@ -125,6 +127,12 @@ Third argument is a hash ref of memory usage by package at before process app.
 Fourth argument is a hash ref of memory usage by package at after process app.
 
 Fifth argument is a hash ref of difference memory usage by package between before and after.
+
+=item packages
+
+packages arrayref will limit modules to measure.
+
+  packages => [ 'Plack::Middleware', 'B::Size2::Terse', ...];
 
 =back
 
