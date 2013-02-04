@@ -128,6 +128,12 @@ Fourth argument is a hash ref of memory usage by package at after process app.
 
 Fifth argument is a hash ref of difference memory usage by package between before and after.
 
+=item packages
+
+packages arrayref will limit modules to measure.
+
+  packages => [ 'Plack::Middleware', 'B::Size2::Terse', ...];
+
 =back
 
 =head1 AUTHOR
